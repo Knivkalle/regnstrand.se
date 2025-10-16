@@ -6,9 +6,13 @@
     <title>Stone Puzzle – Binary Coordinates</title>
     <style>
       :root {
-        --bg1: #ffef9f; /* pale yellow */
-        --bg2: #ffb347; /* orangey */
+        --bg1: #ffef9f;
+        --bg2: #ffb347;
         --text: #2b2b2b;
+        --glass: rgba(255, 255, 255, 0.35);
+        --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        --tile-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+        --radius: 16px;
       }
       html,
       body {
@@ -24,29 +28,334 @@
           "Liberation Mono", "Courier New", monospace;
         color: var(--text);
       }
-      .wrap {
-        max-width: min(90ch, 90vw);
+      .wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+      }
+      .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+        max-width: 95vw;
+        padding: 2rem;
+        text-align: center;
+      }
+      .countdown-wrap {
+        display: grid;
+        gap: 1rem;
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      .countdown-title {
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        opacity: 0.85;
+      }
+      .tiles {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(90px, 1fr));
+        gap: 1rem;
+      }
+      .tile {
+        background: var(--glass);
+        border-radius: var(--radius);
+        box-shadow: var(--tile-shadow);
+        padding: 1rem 1.25rem;
+        backdrop-filter: blur(4px);
+      }
+      .tile .value {
+        font-size: clamp(28px, 6vw, 48px);
+        font-weight: 800;
+        line-height: 1;
+      }
+      .tile .label {
+        margin-top: 0.35rem;
+        font-size: clamp(10px, 1.8vw, 13px);
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        opacity: 0.75;
+      }
+      .binary-box {
+        max-width: min(60ch, 90vw);
         padding: 2rem 3rem;
-        background: rgba(255, 255, 255, 0.3);
-        border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        background: var(--glass);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
         backdrop-filter: blur(4px);
       }
       pre {
         margin: 0;
         font-size: clamp(14px, 2.2vw, 22px);
         line-height: 1.4;
-        white-space: pre-wrap; /* allow wrapping */
+        white-space: pre-wrap;
         word-break: break-word;
         text-align: center;
+      }
+      @media (max-width: 520px) {
+        .tiles {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      /* Modal / lightbox */
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.65);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        z-index: 50;
+      }
+      .modal.open {
+        display: flex;
+      }
+      .modal-content {
+        position: relative;
+        max-width: min(92vw, 1000px);
+        max-height: 90vh;
+        background: #111;
+        border-radius: 14px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        overflow: hidden;
+      }
+      .modal-content img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        background: #111;
+      }
+      .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        border: 0;
+        border-radius: 10px;
+        padding: 0.5rem 0.75rem;
+        background: rgba(255, 255, 255, 0.15);
+        color: #fff;
+        cursor: pointer;
+      }
+      .reveal-btn {
+        padding: 0.6rem 1rem;
+        border: 0;
+        border-radius: 10px;
+        background: #2b2b2b;
+        color: #fff;
+        cursor: pointer;
+      }
+      .side-img {
+        max-height: 400px;
+        object-fit: contain;
       }
     </style>
   </head>
   <body>
-    <div class="wrap" aria-label="Binary encoding of the coordinates">
-      <pre>
+    <div class="wrapper">
+      <div class="container">
+        <!-- COUNTDOWN TILES (these IDs are used by JS) -->
+        <div class="countdown-wrap" aria-live="polite">
+          <div class="countdown-title">Tid kvar att lösa uppdraget:</div>
+          <div class="tiles" id="countdown">
+            <div class="tile">
+              <div class="value" id="dd">--</div>
+              <div class="label">days</div>
+            </div>
+            <div class="tile">
+              <div class="value" id="hh">--</div>
+              <div class="label">hours</div>
+            </div>
+            <div class="tile">
+              <div class="value" id="mm">--</div>
+              <div class="label">minutes</div>
+            </div>
+            <div class="tile">
+              <div class="value" id="ss">--</div>
+              <div class="label">seconds</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="binary-box" aria-label="Binary encoding of the coordinates">
+          <h3 style="margin-top: 0">Dessa kan hjälpa dig finna filuren:</h3>
+          <pre>
 00110101 00111000 10110000 00110010 00110100 00100111 00110011 00110100 00101110 00111001 00100010 01001110 00100000 00110001 00110101 10110000 00110011 00110110 00100111 00110001 00110000 00101110 00110001 00100010 01000101</pre
-      >
+          >
+        </div>
+
+        <!-- Riddle / Password Gate -->
+        <div
+          class="binary-box"
+          aria-label="Riddle gate"
+          style="max-width: 70ch"
+        >
+          <h3 style="margin-top: 0">
+            Svara på frågan för att låsa upp en bild:
+          </h3>
+          <p style="margin: 0 0 1rem 0; opacity: 0.9">
+            Vilken är Pontus favoriträtt?
+          </p>
+          <div
+            style="
+              display: flex;
+              gap: 0.5rem;
+              justify-content: center;
+              flex-wrap: wrap;
+            "
+          >
+            <input
+              id="pwd"
+              type="password"
+              placeholder="Type the answer…"
+              aria-label="Password"
+              style="
+                padding: 0.6rem 0.8rem;
+                border-radius: 10px;
+                border: 1px solid rgba(0, 0, 0, 0.15);
+                min-width: 220px;
+              "
+            />
+            <button
+              id="unlockBtn"
+              style="
+                padding: 0.6rem 1rem;
+                border: 0;
+                border-radius: 10px;
+                background: #2b2b2b;
+                color: #fff;
+                cursor: pointer;
+              "
+            >
+              Unlock
+            </button>
+          </div>
+          <div
+            id="msg"
+            style="
+              min-height: 1.4em;
+              margin-top: 0.6rem;
+              font-size: 0.9rem;
+              opacity: 0.8;
+            "
+          ></div>
+          <div id="secret" style="display: none; margin-top: 1rem">
+            <button id="openLightbox" class="reveal-btn">Visa bilden</button>
+          </div>
+        </div>
+
+        <!-- Lightbox Modal -->
+        <div id="lightbox" class="modal" aria-hidden="true">
+          <div class="modal-content">
+            <button class="modal-close" id="closeLightbox" aria-label="Close">
+              ✕
+            </button>
+            <img src="images/filuren.jpeg" alt="Unlocked image" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Side image placeholder -->
+      <img class="side-img" src="images/minion.png" alt="Side character" />
     </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        // ===== Countdown (fixed target) =====
+        const target = new Date(2025, 9, 31, 10, 59, 59);
+        const elD = document.getElementById("dd");
+        const elH = document.getElementById("hh");
+        const elM = document.getElementById("mm");
+        const elS = document.getElementById("ss");
+        const pad2 = (n) => String(n).padStart(2, "0");
+        function tick() {
+          const now = new Date();
+          let diff = target.getTime() - now.getTime();
+          if (!elD || !elH || !elM || !elS) return;
+          if (diff <= 0) {
+            elD.textContent = "00";
+            elH.textContent = "00";
+            elM.textContent = "00";
+            elS.textContent = "00";
+            return;
+          }
+          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+          diff -= d * (1000 * 60 * 60 * 24);
+          const h = Math.floor(diff / (1000 * 60 * 60));
+          diff -= h * (1000 * 60 * 60);
+          const m = Math.floor(diff / (1000 * 60));
+          diff -= m * (1000 * 60);
+          const s = Math.floor(diff / 1000);
+          elD.textContent = d;
+          elH.textContent = pad2(h);
+          elM.textContent = pad2(m);
+          elS.textContent = pad2(s);
+        }
+        tick();
+        setInterval(tick, 1000);
+
+        // ===== Password Gate =====
+        const HASH_HEX =
+          "c543ece81605c7d202121c62080a0db4020fc2c75bfac35d101d7f3e93c93949";
+        const pwdEl = document.getElementById("pwd");
+        const btnEl = document.getElementById("unlockBtn");
+        const msgEl = document.getElementById("msg");
+        const secretEl = document.getElementById("secret");
+        const lightbox = document.getElementById("lightbox");
+        const openBtn = document.getElementById("openLightbox");
+        const closeBtn = document.getElementById("closeLightbox");
+
+        async function sha256Hex(str) {
+          const enc = new TextEncoder().encode(str);
+          const buf = await crypto.subtle.digest("SHA-256", enc);
+          return Array.from(new Uint8Array(buf))
+            .map((b) => b.toString(16).padStart(2, "0"))
+            .join("");
+        }
+
+        async function tryUnlock() {
+          const val = (pwdEl.value || "").trim().toLowerCase();
+          if (!val) {
+            msgEl.textContent = "Enter an answer.";
+            return;
+          }
+          const h = await sha256Hex(val);
+          if (h === HASH_HEX) {
+            secretEl.style.display = "block";
+            msgEl.textContent = "Unlocked!";
+          } else {
+            msgEl.textContent = "Nope.";
+          }
+        }
+
+        btnEl.addEventListener("click", tryUnlock);
+        pwdEl.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") tryUnlock();
+        });
+
+        // Lightbox controls
+        function openLight() {
+          lightbox.classList.add("open");
+          document.body.style.overflow = "hidden";
+        }
+        function closeLight() {
+          lightbox.classList.remove("open");
+          document.body.style.overflow = "";
+        }
+        if (openBtn) openBtn.addEventListener("click", openLight);
+        if (closeBtn) closeBtn.addEventListener("click", closeLight);
+        lightbox.addEventListener("click", (e) => {
+          if (e.target === lightbox) closeLight();
+        });
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeLight();
+        });
+      });
+    </script>
   </body>
 </html>
