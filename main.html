@@ -1,1 +1,52 @@
-
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stone Puzzle – Binary Coordinates</title>
+    <style>
+      :root {
+        --bg1: #ffef9f; /* pale yellow */
+        --bg2: #ffb347; /* orangey */
+        --text: #2b2b2b;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--bg1), var(--bg2));
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        color: var(--text);
+      }
+      .wrap {
+        max-width: min(90ch, 90vw);
+        padding: 2rem 3rem;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(4px);
+      }
+      pre {
+        margin: 0;
+        font-size: clamp(14px, 2.2vw, 22px);
+        line-height: 1.4;
+        white-space: pre-wrap; /* allow wrapping */
+        word-break: break-word;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap" aria-label="Binary encoding of the coordinates">
+      <pre>
+00110101 00111000 10110000 00110010 00110100 00100111 00110011 00110100 00101110 00111001 00100010 01001110 00100000 00110001 00110101 10110000 00110011 00110110 00100111 00110001 00110000 00101110 00110001 00100010 01000101</pre
+      >
+    </div>
+  </body>
+</html>
