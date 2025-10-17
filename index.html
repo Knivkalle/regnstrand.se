@@ -145,6 +145,15 @@
           max-height: 160px;
           max-width: 70vw;
         }
+
+        /* === FIX: extend gradient fade to bottom === */
+        html,
+        body {
+          height: auto;
+          min-height: 100%;
+          background-repeat: no-repeat;
+          background-attachment: fixed;
+        }
       }
 
       /* Ultra-small devices */
@@ -212,37 +221,37 @@
   <body>
     <div class="wrapper">
       <div class="container">
-        <!-- COUNTDOWN TILES (these IDs are used by JS) -->
         <div class="countdown-wrap" aria-live="polite">
           <div class="countdown-title">Tid kvar att lösa uppdraget:</div>
           <div class="tiles" id="countdown">
             <div class="tile">
               <div class="value" id="dd">--</div>
-              <div class="label">days</div>
+              <div class="label">dagar</div>
             </div>
             <div class="tile">
               <div class="value" id="hh">--</div>
-              <div class="label">hours</div>
+              <div class="label">timmar</div>
             </div>
             <div class="tile">
               <div class="value" id="mm">--</div>
-              <div class="label">minutes</div>
+              <div class="label">minuter</div>
             </div>
             <div class="tile">
               <div class="value" id="ss">--</div>
-              <div class="label">seconds</div>
+              <div class="label">sekunder</div>
             </div>
           </div>
         </div>
 
         <div class="binary-box" aria-label="Binary encoding of the coordinates">
-          <h3 style="margin-top: 0">Dessa kan hjälpa dig finna filuren:</h3>
+          <h3 style="margin-top: 0">
+            Lös detta pussel för att avslöja filurens gömställe:
+          </h3>
           <pre>
 00110101 00111000 10110000 00110010 00110100 00100111 00110011 00110100 00101110 00111001 00100010 01001110 00100000 00110001 00110101 10110000 00110011 00110110 00100111 00110001 00110000 00101110 00110001 00100010 01000101</pre
           >
         </div>
 
-        <!-- Riddle / Password Gate -->
         <div
           class="binary-box"
           aria-label="Riddle gate"
@@ -265,7 +274,7 @@
             <input
               id="pwd"
               type="password"
-              placeholder="Type the answer…"
+              placeholder="Skriv ditt svar…"
               aria-label="Password"
               style="
                 padding: 0.6rem 0.8rem;
@@ -285,7 +294,7 @@
                 cursor: pointer;
               "
             >
-              Unlock
+              Lås upp
             </button>
           </div>
           <div
@@ -302,7 +311,6 @@
           </div>
         </div>
 
-        <!-- Lightbox Modal -->
         <div id="lightbox" class="modal" aria-hidden="true">
           <div class="modal-content">
             <button class="modal-close" id="closeLightbox" aria-label="Close">
@@ -313,13 +321,11 @@
         </div>
       </div>
 
-      <!-- Side image placeholder -->
       <img class="side-img" src="images/minion.png" alt="Side character" />
     </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // ===== Countdown (fixed target) =====
         const target = new Date(2025, 9, 31, 10, 59, 59);
         const elD = document.getElementById("dd");
         const elH = document.getElementById("hh");
@@ -352,7 +358,6 @@
         tick();
         setInterval(tick, 1000);
 
-        // ===== Password Gate =====
         const HASH_HEX =
           "c543ece81605c7d202121c62080a0db4020fc2c75bfac35d101d7f3e93c93949";
         const pwdEl = document.getElementById("pwd");
@@ -374,13 +379,13 @@
         async function tryUnlock() {
           const val = (pwdEl.value || "").trim().toLowerCase();
           if (!val) {
-            msgEl.textContent = "Enter an answer.";
+            msgEl.textContent = "Ange ett svar.";
             return;
           }
           const h = await sha256Hex(val);
           if (h === HASH_HEX) {
             secretEl.style.display = "block";
-            msgEl.textContent = "Unlocked!";
+            msgEl.textContent = "Upplåst!";
           } else {
             msgEl.textContent = "Nope.";
           }
@@ -391,7 +396,6 @@
           if (e.key === "Enter") tryUnlock();
         });
 
-        // Lightbox controls
         function openLight() {
           lightbox.classList.add("open");
           document.body.style.overflow = "hidden";
