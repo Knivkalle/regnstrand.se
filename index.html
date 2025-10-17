@@ -13,7 +13,6 @@
         --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
         --tile-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
         --radius: 16px;
-        --minion-bg: #ffb347; /* color for minion area */
       }
       html,
       body {
@@ -112,11 +111,7 @@
           justify-content: flex-start;
           flex-direction: column;
           padding: 1rem;
-          background: linear-gradient(
-            180deg,
-            var(--bg1) 0%,
-            var(--minion-bg) 100%
-          );
+          background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
         }
         .wrapper {
           flex-direction: column;
@@ -138,9 +133,6 @@
           max-height: 180px;
           width: auto;
           margin: 20px auto 40px;
-          background-color: var(--minion-bg);
-          padding: 10px;
-          border-radius: 12px;
         }
       }
     </style>
