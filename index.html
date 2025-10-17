@@ -98,121 +98,48 @@
         text-align: center;
       }
 
-      /* === Mobile-only layout for iPhone/Samsung (<= 768px) === */
-      @media (max-width: 768px) {
-        /* Only mobile tweaks — desktop remains untouched */
-        body {
-          align-items: flex-start;
-          justify-content: flex-start;
-          padding-top: env(safe-area-inset-top);
-        }
-        .wrapper {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: center;
-        }
-        .container {
-          max-width: 100vw;
-          padding: 1rem;
-          gap: 1.25rem;
-        }
-        .countdown-wrap {
-          position: static;
-          margin-top: 0.25rem;
-        }
-        .tiles {
-          grid-template-columns: repeat(2, minmax(80px, 1fr));
-          gap: 0.7rem;
-        }
-        .tile {
-          padding: 0.8rem 0.9rem;
-        }
-        .tile .value {
-          font-size: clamp(22px, 7vw, 36px);
-        }
-        .tile .label {
-          font-size: clamp(10px, 2.8vw, 12px);
-        }
-        .binary-box {
-          max-width: 100%;
-          padding: 1.25rem;
-        }
-        pre {
-          font-size: clamp(12px, 3.6vw, 18px);
-          line-height: 1.35;
-        }
-        .side-img {
-          max-height: 160px;
-          max-width: 70vw;
-        }
-      }
-
-      /* Ultra-small devices */
-      @media (max-width: 380px) {
-        .tiles {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-
-      /* Modal / lightbox */
-      .modal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.65);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        z-index: 50;
-      }
-      .modal.open {
-        display: flex;
-      }
-      .modal-content {
-        position: relative;
-        max-width: min(92vw, 1000px);
-        max-height: 90vh;
-        background: #111;
-        border-radius: 14px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        overflow: hidden;
-      }
-      .modal-content img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #111;
-      }
-      .modal-close {
-        position: absolute;
-        top: 10px;
-        right: 12px;
-        border: 0;
-        border-radius: 10px;
-        padding: 0.5rem 0.75rem;
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
-        cursor: pointer;
-      }
-      .reveal-btn {
-        padding: 0.6rem 1rem;
-        border: 0;
-        border-radius: 10px;
-        background: #2b2b2b;
-        color: #fff;
-        cursor: pointer;
-      }
       .side-img {
         max-height: 400px;
         object-fit: contain;
+        display: block;
+      }
+
+      /* === Mobile-only layout for iPhone/Samsung (<= 768px) === */
+      @media (max-width: 768px) {
+        body {
+          align-items: flex-start;
+          justify-content: flex-start;
+          flex-direction: column;
+          padding: 1rem;
+          background: linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+        }
+        .wrapper {
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          width: 100%;
+          gap: 1rem;
+        }
+        .container {
+          width: 100%;
+          padding: 0;
+          margin: 0 auto;
+        }
+        .countdown-wrap {
+          margin-top: 1rem;
+          position: static;
+        }
+        .side-img {
+          max-height: 180px;
+          width: auto;
+          margin: 20px auto 40px;
+        }
       }
     </style>
   </head>
   <body>
     <div class="wrapper">
       <div class="container">
-        <!-- COUNTDOWN TILES (these IDs are used by JS) -->
         <div class="countdown-wrap" aria-live="polite">
           <div class="countdown-title">Tid kvar att lösa uppdraget:</div>
           <div class="tiles" id="countdown">
@@ -242,7 +169,6 @@
           >
         </div>
 
-        <!-- Riddle / Password Gate -->
         <div
           class="binary-box"
           aria-label="Riddle gate"
@@ -301,25 +227,13 @@
             <button id="openLightbox" class="reveal-btn">Visa bilden</button>
           </div>
         </div>
-
-        <!-- Lightbox Modal -->
-        <div id="lightbox" class="modal" aria-hidden="true">
-          <div class="modal-content">
-            <button class="modal-close" id="closeLightbox" aria-label="Close">
-              ✕
-            </button>
-            <img src="images/filuren.jpeg" alt="Unlocked image" />
-          </div>
-        </div>
       </div>
 
-      <!-- Side image placeholder -->
       <img class="side-img" src="images/minion.png" alt="Side character" />
     </div>
 
     <script>
       document.addEventListener("DOMContentLoaded", () => {
-        // ===== Countdown (fixed target) =====
         const target = new Date(2025, 9, 31, 10, 59, 59);
         const elD = document.getElementById("dd");
         const elH = document.getElementById("hh");
@@ -337,12 +251,12 @@
             elS.textContent = "00";
             return;
           }
-          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-          diff -= d * (1000 * 60 * 60 * 24);
-          const h = Math.floor(diff / (1000 * 60 * 60));
-          diff -= h * (1000 * 60 * 60);
-          const m = Math.floor(diff / (1000 * 60));
-          diff -= m * (1000 * 60);
+          const d = Math.floor(diff / 86400000);
+          diff -= d * 86400000;
+          const h = Math.floor(diff / 3600000);
+          diff -= h * 3600000;
+          const m = Math.floor(diff / 60000);
+          diff -= m * 60000;
           const s = Math.floor(diff / 1000);
           elD.textContent = d;
           elH.textContent = pad2(h);
@@ -352,17 +266,12 @@
         tick();
         setInterval(tick, 1000);
 
-        // ===== Password Gate =====
         const HASH_HEX =
           "c543ece81605c7d202121c62080a0db4020fc2c75bfac35d101d7f3e93c93949";
         const pwdEl = document.getElementById("pwd");
         const btnEl = document.getElementById("unlockBtn");
         const msgEl = document.getElementById("msg");
         const secretEl = document.getElementById("secret");
-        const lightbox = document.getElementById("lightbox");
-        const openBtn = document.getElementById("openLightbox");
-        const closeBtn = document.getElementById("closeLightbox");
-
         async function sha256Hex(str) {
           const enc = new TextEncoder().encode(str);
           const buf = await crypto.subtle.digest("SHA-256", enc);
@@ -370,7 +279,6 @@
             .map((b) => b.toString(16).padStart(2, "0"))
             .join("");
         }
-
         async function tryUnlock() {
           const val = (pwdEl.value || "").trim().toLowerCase();
           if (!val) {
@@ -385,28 +293,9 @@
             msgEl.textContent = "Nope.";
           }
         }
-
         btnEl.addEventListener("click", tryUnlock);
         pwdEl.addEventListener("keydown", (e) => {
           if (e.key === "Enter") tryUnlock();
-        });
-
-        // Lightbox controls
-        function openLight() {
-          lightbox.classList.add("open");
-          document.body.style.overflow = "hidden";
-        }
-        function closeLight() {
-          lightbox.classList.remove("open");
-          document.body.style.overflow = "";
-        }
-        if (openBtn) openBtn.addEventListener("click", openLight);
-        if (closeBtn) closeBtn.addEventListener("click", closeLight);
-        lightbox.addEventListener("click", (e) => {
-          if (e.target === lightbox) closeLight();
-        });
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") closeLight();
         });
       });
     </script>
