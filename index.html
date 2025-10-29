@@ -137,20 +137,33 @@
     </div>
     <div class="flash" id="flash"></div>
 
+    <audio id="beep" preload="auto">
+      <source
+        src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg"
+        type="audio/ogg"
+      />
+    </audio>
+
     <script>
       // Simple playful countdown + harmless effects
       const ctr = document.getElementById("ctr");
       const log = document.getElementById("log");
       const flash = document.getElementById("flash");
       const root = document.getElementById("root");
+      const beep = document.getElementById("beep");
       let n = 10;
-      let step = 0;
 
       function setLog(msg) {
         log.textContent = msg;
       }
 
+      function playBeep() {
+        beep.currentTime = 0;
+        beep.play().catch(() => {});
+      }
+
       function tick() {
+        playBeep();
         ctr.textContent = String(n).padStart(2, "0");
         if (n === 10) setLog("Initierar protokoll SE-42…");
         if (n === 7) setLog("Armerar laddning …");
