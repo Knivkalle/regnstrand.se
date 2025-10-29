@@ -1,418 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Tilde och Lovisas Skattjakt</title>
+    <title>Uppdraget slutfört</title>
     <style>
       :root {
-        --bg1: #ffef9f;
-        --bg2: #ffb347;
-        --text: #2b2b2b;
-        --glass: rgba(255, 255, 255, 0.35);
-        --shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-        --tile-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
-        --radius: 16px;
+        --bg1: #111111;
+        --bg2: #2a0000;
+        --accent: #ff3b30;
+        --text: #f7f7f7;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
       html,
       body {
         height: 100%;
-        margin: 0;
       }
       body {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: linear-gradient(135deg, var(--bg1), var(--bg2));
+        display: grid;
+        place-items: center;
+        background: radial-gradient(
+          1200px 700px at 50% 30%,
+          #2b0a0a 0%,
+          #110506 55%,
+          #060606 100%
+        );
+        color: var(--text);
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
           "Liberation Mono", "Courier New", monospace;
-        color: var(--text);
-      }
-      .wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 2rem;
-      }
-      .container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2rem;
-        max-width: 95vw;
-        padding: 2rem;
-        text-align: center;
-      }
-      .countdown-wrap {
-        display: grid;
-        gap: 1rem;
-        position: sticky;
-        top: 0;
-        z-index: 1;
-      }
-      .countdown-title {
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        opacity: 0.85;
-      }
-      .tiles {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(90px, 1fr));
-        gap: 1rem;
-      }
-      .tile {
-        background: var(--glass);
-        border-radius: var(--radius);
-        box-shadow: var(--tile-shadow);
-        padding: 1rem 1.25rem;
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-      }
-      .tile .value {
-        font-size: clamp(28px, 6vw, 48px);
-        font-weight: 800;
-        line-height: 1;
-      }
-      .tile .label {
-        margin-top: 0.35rem;
-        font-size: clamp(10px, 1.8vw, 13px);
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        opacity: 0.75;
-      }
-      .binary-box {
-        max-width: min(60ch, 90vw);
-        padding: 2rem 3rem;
-        background: var(--glass);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
-      }
-      pre {
-        margin: 0;
-        font-size: clamp(14px, 2.2vw, 22px);
-        line-height: 1.4;
-        white-space: pre-wrap;
-        word-break: break-word;
-        text-align: center;
-      }
-
-      /* === Mobile-only layout for iPhone/Samsung (<= 768px) === */
-      @media (max-width: 768px) {
-        /* Only mobile tweaks — desktop remains untouched */
-        body {
-          align-items: flex-start;
-          justify-content: flex-start;
-          padding-top: env(safe-area-inset-top);
-        }
-        .wrapper {
-          flex-direction: column;
-          gap: 1rem;
-          align-items: center;
-        }
-        .container {
-          max-width: 100vw;
-          padding: 1rem;
-          gap: 1.25rem;
-        }
-        .countdown-wrap {
-          position: static;
-          margin-top: 0.25rem;
-        }
-        .tiles {
-          grid-template-columns: repeat(2, minmax(80px, 1fr));
-          gap: 0.7rem;
-        }
-        .tile {
-          padding: 0.8rem 0.9rem;
-        }
-        .tile .value {
-          font-size: clamp(22px, 7vw, 36px);
-        }
-        .tile .label {
-          font-size: clamp(10px, 2.8vw, 12px);
-        }
-        .binary-box {
-          max-width: 100%;
-          padding: 1.25rem;
-        }
-        pre {
-          font-size: clamp(12px, 3.6vw, 18px);
-          line-height: 1.35;
-        }
-        .side-img {
-          max-height: 160px;
-          max-width: 70vw;
-        }
-
-        /* === FIX: extend gradient fade to bottom === */
-        html,
-        body {
-          height: auto;
-          min-height: 100%;
-          background-repeat: no-repeat;
-          background-attachment: fixed;
-        }
-      }
-
-      /* Ultra-small devices */
-      @media (max-width: 380px) {
-        .tiles {
-          grid-template-columns: 1fr 1fr;
-        }
-      }
-
-      /* Modal / lightbox */
-      .modal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.65);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-        z-index: 50;
-      }
-      .modal.open {
-        display: flex;
-      }
-      .modal-content {
-        position: relative;
-        max-width: min(92vw, 1000px);
-        max-height: 90vh;
-        background: #111;
-        border-radius: 14px;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         overflow: hidden;
       }
-      .modal-content img {
-        display: block;
-        width: 100%;
-        height: 100%;
-        object-fit: contain;
-        background: #111;
+      .wrap {
+        text-align: center;
+        padding: clamp(16px, 4vw, 40px);
       }
-      .modal-close {
-        position: absolute;
-        top: 10px;
-        right: 12px;
-        border: 0;
+      h1 {
+        font-size: clamp(28px, 6vw, 64px);
+        letter-spacing: 0.02em;
+        font-weight: 900;
+        text-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+      }
+      .sub {
+        margin-top: 14px;
+        font-size: clamp(16px, 3.2vw, 24px);
+        opacity: 0.9;
+      }
+      .counter {
+        margin-top: 26px;
+        font-size: clamp(48px, 12vw, 160px);
+        font-weight: 900;
+        line-height: 1;
+        color: var(--accent);
+        text-shadow: 0 0 24px rgba(255, 59, 48, 0.35);
+      }
+      .log {
+        margin-top: 18px;
+        font-size: clamp(12px, 2.6vw, 16px);
+        opacity: 0.7;
+      }
+
+      /* Flash & shake effects */
+      .flash {
+        position: fixed;
+        inset: 0;
+        background: #ff3b30;
+        opacity: 0;
+        pointer-events: none;
+      }
+      .flash.on {
+        animation: flash 0.22s ease-in-out 3;
+      }
+      @keyframes flash {
+        0% {
+          opacity: 0;
+        }
+        25% {
+          opacity: 0.22;
+        }
+        50% {
+          opacity: 0.05;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      .shake {
+        animation: shake 0.4s linear 3;
+      }
+      @keyframes shake {
+        0% {
+          transform: translate(0, 0);
+        }
+        20% {
+          transform: translate(-8px, 2px);
+        }
+        40% {
+          transform: translate(9px, -3px);
+        }
+        60% {
+          transform: translate(-6px, 4px);
+        }
+        80% {
+          transform: translate(6px, -2px);
+        }
+        100% {
+          transform: translate(0, 0);
+        }
+      }
+      .ok {
+        color: #6ef0a7;
+      }
+      .btn {
+        margin-top: 22px;
+        padding: 0.7rem 1.1rem;
         border-radius: 10px;
-        padding: 0.5rem 0.75rem;
-        background: rgba(255, 255, 255, 0.15);
-        color: #fff;
-        cursor: pointer;
-      }
-      .reveal-btn {
-        padding: 0.6rem 1rem;
         border: 0;
-        border-radius: 10px;
-        background: #2b2b2b;
-        color: #fff;
         cursor: pointer;
+        background: #ffffff12;
+        color: #fff;
       }
-      .side-img {
-        max-height: 400px;
-        object-fit: contain;
+      .btn:hover {
+        background: #ffffff22;
       }
     </style>
   </head>
   <body>
-    <div class="wrapper">
-      <div class="container">
-        <div class="countdown-wrap" aria-live="polite">
-          <div class="countdown-title">Tid kvar att lösa uppdraget:</div>
-          <div class="tiles" id="countdown">
-            <div class="tile">
-              <div class="value" id="dd">--</div>
-              <div class="label">dagar</div>
-            </div>
-            <div class="tile">
-              <div class="value" id="hh">--</div>
-              <div class="label">timmar</div>
-            </div>
-            <div class="tile">
-              <div class="value" id="mm">--</div>
-              <div class="label">minuter</div>
-            </div>
-            <div class="tile">
-              <div class="value" id="ss">--</div>
-              <div class="label">sekunder</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="binary-box" aria-label="Binary encoding of the coordinates">
-          <h3 style="margin-top: 0">
-            Lös detta pussel för att avslöja filurens gömställe:
-          </h3>
-          <pre>
-00110101 00111000 10110000 00110010 00110100 00100111 00110011 00110100 00101110 00111001 00100010 01001110 00100000 00110001 00110101 10110000 00110011 00110110 00100111 00110001 00110000 00101110 00110001 00100010 01000101</pre
-          >
-        </div>
-
-        <div
-          class="binary-box"
-          aria-label="Riddle gate"
-          style="max-width: 70ch"
-        >
-          <h3 style="margin-top: 0">
-            Svara på frågan för att låsa upp en bild:
-          </h3>
-          <p style="margin: 0 0 1rem 0; opacity: 0.9">
-            Vad är lösenordet till farfars/morfars Wi-Fi?
-          </p>
-          <div
-            style="
-              display: flex;
-              gap: 0.5rem;
-              justify-content: center;
-              flex-wrap: wrap;
-            "
-          >
-            <input
-              id="pwd"
-              type="password"
-              placeholder="Skriv ditt svar…"
-              aria-label="Password"
-              style="
-                padding: 0.6rem 0.8rem;
-                border-radius: 10px;
-                border: 1px solid rgba(0, 0, 0, 0.15);
-                min-width: 220px;
-              "
-            />
-            <button
-              id="unlockBtn"
-              style="
-                padding: 0.6rem 1rem;
-                border: 0;
-                border-radius: 10px;
-                background: #2b2b2b;
-                color: #fff;
-                cursor: pointer;
-              "
-            >
-              Lås upp
-            </button>
-          </div>
-          <div
-            id="msg"
-            style="
-              min-height: 1.4em;
-              margin-top: 0.6rem;
-              font-size: 0.9rem;
-              opacity: 0.8;
-            "
-          ></div>
-          <div id="secret" style="display: none; margin-top: 1rem">
-            <button id="openLightbox" class="reveal-btn">Visa bilden</button>
-          </div>
-        </div>
-
-        <div id="lightbox" class="modal" aria-hidden="true">
-          <div class="modal-content">
-            <button class="modal-close" id="closeLightbox" aria-label="Close">
-              ✕
-            </button>
-            <img src="images/grönsten.jpg" alt="Unlocked image" />
-          </div>
-        </div>
-      </div>
-
-      <img class="side-img" src="images/minion.png" alt="Side character" />
+    <div class="wrap" id="root">
+      <h1>Uppdraget slutfört.</h1>
+      <div class="sub">Aktiverar självförstörning på din enhet om</div>
+      <div class="counter" id="ctr">10</div>
+      <div class="log" id="log">Initierar protokoll SE-42…</div>
     </div>
+    <div class="flash" id="flash"></div>
 
     <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        const target = new Date(2025, 9, 31, 6, 59, 59);
-        const elD = document.getElementById("dd");
-        const elH = document.getElementById("hh");
-        const elM = document.getElementById("mm");
-        const elS = document.getElementById("ss");
-        const pad2 = (n) => String(n).padStart(2, "0");
-        function tick() {
-          const now = new Date();
-          let diff = target.getTime() - now.getTime();
-          if (!elD || !elH || !elM || !elS) return;
-          if (diff <= 0) {
-            elD.textContent = "00";
-            elH.textContent = "00";
-            elM.textContent = "00";
-            elS.textContent = "00";
-            return;
+      // Simple playful countdown + harmless effects
+      const ctr = document.getElementById("ctr");
+      const log = document.getElementById("log");
+      const flash = document.getElementById("flash");
+      const root = document.getElementById("root");
+      let n = 10;
+      let step = 0;
+
+      function setLog(msg) {
+        log.textContent = msg;
+      }
+
+      function tick() {
+        ctr.textContent = String(n).padStart(2, "0");
+        if (n === 10) setLog("Initierar protokoll SE-42…");
+        if (n === 7) setLog("Armerar laddning …");
+        if (n === 5) setLog("Synkar med enhet …");
+        if (n === 3) setLog("Sista kontroll …");
+        if (n <= 0) {
+          // harmless “boom” effect
+          flash.classList.add("on");
+          root.classList.add("shake");
+          if (navigator.vibrate) {
+            try {
+              navigator.vibrate([40, 80, 40]);
+            } catch (_) {}
           }
-          const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-          diff -= d * (1000 * 60 * 60 * 24);
-          const h = Math.floor(diff / (1000 * 60 * 60));
-          diff -= h * (1000 * 60 * 60);
-          const m = Math.floor(diff / (1000 * 60));
-          diff -= m * (1000 * 60);
-          const s = Math.floor(diff / 1000);
-          elD.textContent = d;
-          elH.textContent = pad2(h);
-          elM.textContent = pad2(m);
-          elS.textContent = pad2(s);
+          setTimeout(() => {
+            document.body.style.background =
+              "linear-gradient(135deg,#0b1e12,#06120a)";
+            root.innerHTML =
+              '<h1 class="ok">🧨 Skoja bara! Inget förstördes.</h1>' +
+              '<div class="sub">Bra jobbat – uppdraget är verkligen klart.</div>' +
+              '<button class="btn" onclick="history.back()">Gå tillbaka</button>';
+          }, 550);
+          clearInterval(timer);
+          return;
         }
-        tick();
-        setInterval(tick, 1000);
-
-        const HASH_HEX =
-          "b7085cd044e1a667fe7b701f22a73fbfdbcdc17f6dacbdd8936cce866463f32b";
-        const pwdEl = document.getElementById("pwd");
-        const btnEl = document.getElementById("unlockBtn");
-        const msgEl = document.getElementById("msg");
-        const secretEl = document.getElementById("secret");
-        const lightbox = document.getElementById("lightbox");
-        const openBtn = document.getElementById("openLightbox");
-        const closeBtn = document.getElementById("closeLightbox");
-
-        async function sha256Hex(str) {
-          const enc = new TextEncoder().encode(str);
-          const buf = await crypto.subtle.digest("SHA-256", enc);
-          return Array.from(new Uint8Array(buf))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("");
-        }
-
-        async function tryUnlock() {
-          const val = (pwdEl.value || "").trim().toLowerCase();
-          if (!val) {
-            msgEl.textContent = "Ange ett svar.";
-            return;
-          }
-          const h = await sha256Hex(val);
-          if (h === HASH_HEX) {
-            secretEl.style.display = "block";
-            msgEl.textContent = "Upplåst!";
-          } else {
-            msgEl.textContent = "Nope.";
-          }
-        }
-
-        btnEl.addEventListener("click", tryUnlock);
-        pwdEl.addEventListener("keydown", (e) => {
-          if (e.key === "Enter") tryUnlock();
-        });
-
-        function openLight() {
-          lightbox.classList.add("open");
-          document.body.style.overflow = "hidden";
-        }
-        function closeLight() {
-          lightbox.classList.remove("open");
-          document.body.style.overflow = "";
-        }
-        if (openBtn) openBtn.addEventListener("click", openLight);
-        if (closeBtn) closeBtn.addEventListener("click", closeLight);
-        lightbox.addEventListener("click", (e) => {
-          if (e.target === lightbox) closeLight();
-        });
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") closeLight();
-        });
-      });
+        n -= 1;
+      }
+      const timer = setInterval(tick, 1000);
+      tick();
     </script>
   </body>
 </html>
